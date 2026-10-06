@@ -10,8 +10,8 @@ each tool and make sure it prints a version (not an error).
 | 2 | Docker Desktop | Build and run containers |
 | 3 | kubectl | Talk to a Kubernetes cluster |
 | 4 | kind | Run a Kubernetes cluster locally, inside Docker |
-| 5 | Ollama | Run the LLM locally for the AI agent |
-| 6 | Python 3.10+ | Run the agent code |
+| 5 | Jenkins | Run the CI/CD pipeline locally (via Docker) |
+| 6 | Python 3.10+ | Run the sample app locally if needed |
 
 ---
 
@@ -107,38 +107,28 @@ kind --version
 
 ---
 
-## 5. Ollama
+## 5. Jenkins
 
-**macOS**
+Jenkins runs inside Docker, so Docker Desktop must be installed and running
+first (step 2 above).
+
+**macOS / Windows (both, via Docker)**
 ```bash
-brew install ollama
+docker pull jenkins/jenkins:lts
+docker run -d --name jenkins \
+  -p 8080:8080 -p 50000:50000 \
+  -v jenkins_home:/var/jenkins_home \
+  jenkins/jenkins:lts
 ```
-Or download the installer from [ollama.com/download](https://ollama.com/download).
 
-**Windows** (PowerShell)
-```powershell
-winget install -e --id Ollama.Ollama
-```
-Or download the installer from [ollama.com/download](https://ollama.com/download).
+**Verify (both)** — open [http://localhost:8080](http://localhost:8080) in a
+browser; you should see the Jenkins unlock screen.
 
-**Verify (both)**
+Stop it once you've confirmed it loads — we'll configure it properly in
+Lab 2:
 ```bash
-ollama --version
+docker stop jenkins
 ```
-
-**Pull the model we'll use** (do this before the workshop, not on workshop Wi-Fi):
-```bash
-ollama pull llama3.2:1b
-```
-
-`llama3.2:1b` (~1.3GB) is sized to run on 4GB-RAM laptops. If your laptop has
-more RAM, a bigger model answers noticeably better:
-
-| Laptop RAM | Model | Pull command |
-|---|---|---|
-| 4 GB | `llama3.2:1b` (default) | `ollama pull llama3.2:1b` |
-| 8 GB | `llama3.2:3b` | `ollama pull llama3.2:3b` |
-| 16 GB+ | `llama3.1` (8b) | `ollama pull llama3.1` |
 
 ---
 
@@ -172,7 +162,7 @@ git --version
 docker --version
 kubectl version --client
 kind --version
-ollama --version
+docker ps -a --filter name=jenkins
 python3 --version
 ```
 

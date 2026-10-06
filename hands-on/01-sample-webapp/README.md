@@ -1,8 +1,8 @@
 # Lab 1 — Docker + Kind (Kubernetes in Docker)
 
 Goal: build a small Flask app into a Docker image, spin up a local Kubernetes
-cluster with Kind, and deploy the image into it. This is the same setup used
-to test the AI agent in Lab 2.
+cluster with Kind, and deploy the image into it. This is the same cluster
+Lab 2's Jenkins pipeline deploys to.
 
 ## Prerequisites
 
@@ -71,7 +71,7 @@ Undo it:
 kubectl set image deployment/sample-webapp sample-webapp=sample-webapp:local
 ```
 
-Keep this cluster running — Lab 2's AI agent will inspect it directly.
+Keep this cluster running — Lab 2's Jenkins pipeline deploys to it directly.
 
 ## Cleanup (after the workshop)
 

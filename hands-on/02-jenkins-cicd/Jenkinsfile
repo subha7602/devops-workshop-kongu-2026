@@ -1,0 +1,55 @@
+pipeline {
+    agent any
+
+    environment {
+        IMAGE_NAME   = "sample-webapp"
+        IMAGE_TAG    = "build-${BUILD_NUMBER}"
+        CLUSTER_NAME = "devops-workshop"
+        APP_DIR      = "hands-on/01-sample-webapp"
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                checkout scm
+            }
+        }
+
+        stage('Build Docker image') {
+            steps {
+                sh "docker build -t ${IMAGE_NAME}:${IMAGE_TAG} ${APP_DIR}"
+            }
+        }
+
+        stage('Load image into Kind') {
+            steps {
+                sh "kind load docker-image ${IMAGE_NAME}:${IMAGE_TAG} --name ${CLUSTER_NAME}"
+            }
+        }
+
+        stage('Deploy to Kubernetes') {
+            steps {
+                sh "kubectl apply -f ${APP_DIR}/k8s/deployment.yaml"
+                sh "kubectl apply -f ${APP_DIR}/k8s/service.yaml"
+                sh "kubectl set image deployment/sample-webapp sample-webapp=${IMAGE_NAME}:${IMAGE_TAG}"
+                sh "kubectl rollout status deployment/sample-webapp"
+            }
+        }
+
+        stage('Verify') {
+            steps {
+                sh "kubectl get pods -l app=sample-webapp"
+            }
+        }
+    }
+
+    post {
+        success {
+            echo "Deployed ${IMAGE_NAME}:${IMAGE_TAG} — port-forward and refresh your browser to see the change."
+        }
+        failure {
+            echo "Pipeline failed — check the stage logs above."
+        }
+    }
+}
